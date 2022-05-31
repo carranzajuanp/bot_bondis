@@ -40,25 +40,10 @@ for ( i in 2:3) {
   aux$geometry.coordinates = NULL 
   datos = rbind(datos, aux)
 }
-bbox <- getbb("Municipio de Cordoba, Argentina", format_out = "sf_polygon")
-datos = st_intersection(datos, bbox)
 datos = subset(datos, datos$properties.linea != "Desconocido")
 datos = dplyr::rename(datos, 'Tipo de bondi' = properties.adaptado)
 datos$`Tipo de bondi` = ifelse(datos$`Tipo de bondi`==T, "Adaptado", "Comun")
-mapa <- tm_shape(tmaptools::read_osm(bb(bbox), ext = 1.05)) +
-  tm_rgb() +
-  tm_shape(datos) + 
-  tm_scale_bar(position = c("left", "bottom")) + tm_compass(position = c("right", "top"), size = 1) +
-  tm_symbols(col = 'Tipo de bondi', size = 0.3,  shape = 21,
-             alpha = 1,  palette = c("#16A8BF", "#E1F20A"),
-             border.col = "#000000") +
-  tm_layout(legend.position = c("right", "bottom"), 
-            legend.outside = FALSE,
-            legend.title.size = 1.5,
-            legend.text.size = 1.2,
-            legend.bg.color = "white",
-            legend.bg.alpha = 0.4)
-mapa
+mapa = mapview(datos, zcol = "`Tipo de bondi`"
 tmap_save(mapa, "bondis.png")
 lineas = st_drop_geometry(datos) %>% 
   group_by(properties.linea) %>% 
